@@ -6,4 +6,4 @@ This project uses Cargo build system. To build it, clone the repository to your 
 
 # Usage
 
-```./memfd_play_rust $file_to_play```
+```./memfd_play $file_to_play```
