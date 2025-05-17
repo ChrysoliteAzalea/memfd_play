@@ -25,8 +25,8 @@ fn main() {
         Ok(file) => file,
     };
     let opts = memfd::MemfdOptions::default().allow_sealing(true).close_on_exec(false);
-    let mfd = opts.create("");
-    let seal_shrink = mfd.as_ref().expect("REASON").add_seals(&[
+    let mfd = opts.create("").unwrap();
+    let seal_shrink = mfd.add_seals(&[
         memfd::FileSeal::SealShrink
     ]);
     match seal_shrink {
@@ -38,9 +38,9 @@ fn main() {
     //let mut R: std::result::Result<T, E>;
     while s > 0 {
     	s = file.read(&mut readbuf[..]).unwrap();
-    	let mut _wr_s = mfd.as_ref().expect("REASON").as_file().write(&readbuf[..]);
+    	let mut _wr_s = mfd.as_file().write(&readbuf[0..s]);
     }
-	let seal_grow_write = mfd.as_ref().expect("REASON").add_seals(&[
+	let seal_grow_write = mfd.add_seals(&[
 		memfd::FileSeal::SealGrow,
 		memfd::FileSeal::SealWrite,
 	]);
@@ -48,7 +48,7 @@ fn main() {
 		Ok(seal_grow_write) => seal_grow_write,
 		Err(why) => panic!("couldn't add F_SEAL_GROW and F_SEAL_WRITE to the virtual file: {}", why),
 	};
-	let fd: RawFd = mfd.expect("REASON").into_raw_fd();
+	let fd: RawFd = mfd.into_raw_fd();
 	let _f_close = match nix::unistd::close(0) {
 		Ok(f_close) => f_close,
 		Err(why) => panic!("couldn't close the default stdin: {}", why),
